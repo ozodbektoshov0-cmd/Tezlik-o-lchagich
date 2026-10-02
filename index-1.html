@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tezlik o'lchagich</title>
+<meta name="theme-color" content="#d6322e">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header><h1>Tezlik o'lchagich</h1><div class="hb"><button id="bAcc" class="ghost">Kirish</button><button id="bTheme" class="ghost">Mavzu</button><button id="bFull" class="ghost">To'liq ekran</button><button id="bLaw" class="ghost">Qonunlar</button><button id="bRules" class="ghost">Qoidalar</button><button id="bHelp" class="ghost">Yordam</button></div></header>
+<main>
+ <p class="warn"><b>Ogohlantirish:</b> bu taxminiy o'lchov, rasmiy radar emas va jarima uchun asos bo'lmaydi. Boshqalarning rasmi va davlat raqamini tarqatish qonunga xilof va javobgarlikka olib keladi. <a href="#" id="lnkLaw">Qonunlar</a></p>
+ <div class="stage" id="st"><video id="v" playsinline muted></video><canvas id="c"></canvas></div>
+ <p id="msg" aria-live="polite">Kamerani yoqing. Telefonni shtativga mahkam o'rnating.</p>
+
+ <div class="row">
+  <button id="bCam">Kamerani yoqish</button>
+  <button id="bFlip" disabled>Kamerani almashtirish</button>
+  <button id="bCal" disabled>4 nuqtani belgilash</button>
+  <button id="bRun" disabled>Boshlash</button>
+ </div>
+ <div class="row">
+  <button id="bSave" class="sec" disabled>Kalibrovkani saqlash</button>
+  <button id="bLoad" class="sec" disabled>Saqlanganni yuklash</button>
+  <button id="bCsv" class="sec">CSV yuklab olish</button>
+  <button id="bClr" class="sec">Natijalarni tozalash</button>
+  <button id="bShot" class="sec">Rasm saqlash</button>
+  <button id="bFile" class="sec">Video yuklash</button>
+  <button id="bRec" class="sec">Yozib olish</button>
+  <button id="bRep" class="sec">Hisobot</button>
+  <button id="bEvi" class="sec">Dalillar</button>
+  <button id="bHist" class="sec">Tarix</button>
+  <input type="file" id="file" accept="video/*" hidden>
+ </div>
+
+ <div class="row sets">
+  <label>Yo'l eni, m (1→2)<input id="W" type="number" step="0.01" value="3.5"></label>
+  <label>Yo'l bo'ylab uzunlik, m (2→3)<input id="L" type="number" step="0.01" value="10"></label>
+  <label>Tuzatish koeffitsienti<input id="K" type="number" step="0.001" value="1"></label>
+  <label>Tezlik chegarasi, km/soat<input id="lim" type="number" step="1" value="60"></label>
+  <label>Birlik<select id="unit"><option value="kmh">km/soat</option><option value="ms">m/s</option><option value="mph">mph</option></select></label>
+  <label>Sezgirlik (0.3–0.9)<input id="conf" type="number" step="0.05" min="0.3" max="0.9" value="0.5"></label>
+  <label>Model<select id="model"><option value="lite_mobilenet_v2">Yengil (tez)</option><option value="mobilenet_v2">Aniqroq (sekin)</option></select></label>
+  <label>Video FPS (fayl tahlili)<input id="vfps" type="number" min="5" max="120" value="30"></label>
+  <label class="chk"><input type="checkbox" id="grid" checked> Metrli to'r</label>
+  <label>Haqiqiy tezlik (GPS), km/soat<input id="real" type="number" step="1" placeholder="masalan, 40"></label>
+  <button id="bK" class="sec">Koeffitsientni hisoblash</button>
+  <button id="bKClr" class="sec">Sinovni tozalash</button>
+  <button id="bInfo" class="sec" aria-pressed="true">Mashina ma'lumoti: yoqilgan</button>
+  <label class="chk"><input type="checkbox" id="snd"> Ovozli ogohlantirish</label>
+  <label class="chk"><input type="checkbox" id="auto"> Chegaradan oshsa avto-rasm</label>
+  <label class="chk"><input type="checkbox" id="evi" checked> Dalil yozish (chegaradan oshganda)</label>
+  <label>Dalillarni saqlash muddati, kun<input id="ret" type="number" min="1" max="365" value="30"></label>
+  <label class="chk"><input type="checkbox" id="color" checked> Rangni aniqlash</label>
+  <label class="chk"><input type="checkbox" id="plate"> Davlat raqamini o'qish (ixtiyoriy)</label>
+ </div>
+
+ <div class="out">
+  <div class="disc" id="disc"><div><span id="num">—</span><br><small id="unitLbl">km/soat</small></div></div>
+  <div class="side">
+   <div id="sub">Natija shu yerda chiqadi</div>
+   <dl class="stats"><div><dt>Soni</dt><dd id="sN">0</dd></div><div><dt>Oshgan</dt><dd id="sOver">0</dd></div><div><dt>Eng yuqori</dt><dd id="sMax">—</dd></div><div><dt>O'rtacha</dt><dd id="sAvg">—</dd></div></dl>
+  </div>
+ </div>
+ <ul id="h"></ul>
+ <p class="note">Taxminiy o'lchov vositasi; rasmiy radar o'rnini bosmaydi.</p>
+</main>
+
+<dialog id="info">
+ <form method="dialog">
+  <h2>Mashina tezligini kamera bilan o'lchang</h2>
+  <p>Telefon kamerasini yo'lga qaratasiz, dastur o'tayotgan mashinani topadi va tezligini hisoblaydi. Hamma narsa brauzeringizda bajariladi, video hech qayerga yuborilmaydi.</p>
+  <h3>Boshlash uchun</h3>
+  <ol>
+   <li>Telefonni shtativga o'rnating, zoom va fokusni o'zgartirmang.</li>
+   <li>Yo'lda to'rtburchak belgilab, tomonlarini ruletka bilan o'lchang va sahifaga kiriting.</li>
+   <li>«4 nuqtani belgilash»ni bosib, burchaklarni tartib bilan bosing: yaqin chap, yaqin o'ng, uzoq o'ng, uzoq chap.</li>
+   <li>«Boshlash»ni bosing. Mashina to'rtburchak ichidan o'tganda tezlik chiqadi.</li>
+  </ol>
+  <h3>Aniqlik</h3>
+  <p>To'g'ri o'rnatilsa ±1–3 km/soat. GPS spidometri bor mashina bilan solishtirib, «Tuzatish koeffitsienti»ni (haqiqiy ÷ o'lchangan) sozlang. Kamera joyi o'zgarsa, kalibrovkani qaytadan qiling.</p>
+  <h3>Imkoniyatlar</h3>
+  <p>Old/orqa kamera, kalibrovkani saqlash, tezlik chegarasi (oshsa qizil, ovoz va avto-rasm), mashina turi va yo'nalishi, GPS bo'yicha koeffitsientni hisoblash, statistika, natijalarni eslab qolish, CSV, rasm saqlash, to'liq ekran, qorong'i rejim va ilova sifatida o'rnatish.</p>
+  <h3>Rang va davlat raqami</h3>
+  <p>Rang avtomatik aniqlanadi (yorug'lik va soyaga bog'liq). Davlat raqamini o'qish ixtiyoriy va o'chirilgan: mashinaning old yoki orqa tomoni kameraga yaqin va raqam kamida ~100 piksel kenglikda ko'rinishi kerak. Raqam faqat qurilmada qayta ishlanadi, tarixda saqlanmaydi (faqat CSV'ga yoziladi). Boshqalarning raqamini yig'ish va tarqatish shaxsiy ma'lumotlar to'g'risidagi qonun bilan cheklangan: faqat qonuniy maqsadda ishlating.</p>
+  <p class="note">Bu taxminiy o'lchov; rasmiy radar o'rnini bosmaydi va jarima uchun asos bo'lmaydi.</p>
+  <label class="chk"><input type="checkbox" id="nomore"> Keyingi safar ko'rsatilmasin</label>
+  <button value="ok">Tushundim</button>
+ </form>
+</dialog>
+
+<dialog id="rules">
+ <form method="dialog">
+  <h2>Qat'iy ogohlantirish va foydalanish qoidalari</h2>
+  <ol>
+   <li><b>Rasmiy emas.</b> Dastur sertifikatlangan radar yoki spidometr emas. Natija taxminiy (xato ±1–3 km/soatdan ham ko'p bo'lishi mumkin) va jarima, sud yoki boshqa rasmiy chora uchun asos bo'lmaydi.</li>
+   <li><b>Xavfsizlik.</b> Kamerani harakatga xalaqit bermaydigan xavfsiz joyga qo'ying. Haydovchilar e'tiborini chalg'itmang va haydab ketayotganda foydalanmang.</li>
+   <li><b>Maxfiylik.</b> Video va ma'lumotlar faqat qurilmangizda qoladi. Davlat raqami va mashina rasmlari shaxsiy ma'lumot: ularni ijtimoiy tarmoqqa chiqarish, kamsitish yoki ta'qib qilish uchun ishlatish taqiqlanadi.</li>
+   <li><b>Qonuniylik.</b> Amaldagi qonunlarga (jumladan shaxsga doir ma'lumotlar to'g'risidagi qonunga) rioya qiling. Maxfiy va himoyalangan ob'ektlar yaqinida, ruxsatsiz joylarda suratga olmang.</li>
+   <li><b>Dalillar.</b> Saqlangan dalil o'lchov parametrlari va xesh bilan keladi, lekin vakolatli organ uni qabul qilishi kafolatlanmaydi. Faqat qonuniy murojaat yoki o'quv maqsadida foydalaning.</li>
+   <li><b>Ochiqlik.</b> Kuzatuv joyida «Video kuzatuv» e'lonini qo'ying. Dastur ishlayotganda ekranda, yozuv va rasmlarda ham «VIDEO KUZATUV» belgisi ko'rinadi. Yashirin (nooshkora) kuzatuvga yo'l qo'yilmaydi.</li>
+   <li><b>Taqiqlanadi:</b> boshqalarni ta'qib qilish yoki kuzatish; mashina egasini aniqlash va izlash; shantaj, tahdid yoki pul talab qilish; davlat raqami va rasmlarni sotish yoki ijtimoiy tarmoq va guruhlarga tarqatish; kamsitish; bolalarni suratga olish; tizimli ma'lumotlar bazasi yig'ish; jarimani o'zboshimchalik bilan «solish».</li>
+   <li><b>Mas'uliyat.</b> Dastur «borligicha» beriladi. Foydalanish oqibatlari uchun foydalanuvchining o'zi javobgar.</li>
+  </ol>
+  <button type="button" id="bLaw2" class="sec">Huquqiy asos: Konstitutsiya va qonunlar</button>
+  <label class="chk"><input type="checkbox" id="agree"> Qoidalarni va huquqiy asosni o'qidim, roziman</label>
+  <label class="chk"><input type="checkbox" id="agree2"> Dasturdan boshqalarga zarar yetkazish, ta'qib qilish, ma'lumotni noqonuniy yig'ish yoki tarqatish uchun foydalanmayman</label>
+  <button id="bAgree" value="ok" disabled>Davom etish</button>
+ </form>
+</dialog>
+<dialog id="law">
+ <h2>Huquqiy asos va javobgarlik</h2>
+ <p class="note">Bu yuridik maslahat emas. Qonunlar o'zgarib turadi: amaldagi rasmiy matnni lex.uz saytida tekshiring.</p>
+ <h3>Konstitutsiya</h3>
+ <p>2023-yil tahriridagi Konstitutsiyaning 31-moddasi har kimga shaxsiy hayot daxlsizligi, shaxsiy va oilaviy sirga ega bo'lish, o'z sha'ni va qadr-qimmatini himoya qilish huquqini beradi. Bu huquqni cheklashga faqat qonunga muvofiq va sudning qaroriga asosan yo'l qo'yiladi. Bu huquq ko'chadagi boshqa odamlarga ham tegishli: siz uni hurmat qilishingiz shart.</p>
+ <h3>Shaxsga doir ma'lumotlar to'g'risidagi qonun (2019)</h3>
+ <p>Shaxsga doir ma'lumot — muayyan shaxsga taalluqli yoki uni aniqlash imkonini beradigan axborot. Tasvir, davlat raqami va mashina egasini aniqlashga yordam beradigan boshqa ma'lumotlar shunday ma'lumot bo'lishi mumkin. Ma'lumotdan faqat u yig'ilgan aniq maqsad uchun foydalanish mumkin. Sub'ektning roziligisiz yoki boshqa qonuniy asossiz uni oshkor etish va tarqatishga yo'l qo'yilmaydi (28-modda). Shaxsga doir ma'lumotlar bazasini yuritish ro'yxatdan o'tkazish talablariga tushishi mumkin.</p>
+ <h3>Javobgarlik</h3>
+ <p>Ma'muriy javobgarlik to'g'risidagi kodeksning 46-2-moddasiga ko'ra, shaxsga doir ma'lumotlarni qonunga xilof yig'ish, saqlash, foydalanish va tarqatish uchun fuqarolarga bazaviy hisoblash miqdorining 3–5 baravari jarima solinadi (manbalarga ko'ra; miqdorni tekshiring). Ma'muriy jazodan keyin takror sodir etilsa, Jinoyat kodeksining 141-2-moddasi bo'yicha jinoiy javobgarlik. Fuqarolik kodeksining 1021-moddasiga ko'ra, or-nomus va qadr-qimmatni kamsituvchi ma'lumot tarqatilsa, ma'naviy zarar qoplanadi.</p>
+ <h3>Tasvirga bo'lgan huquq</h3>
+ <p>Fuqarolik kodeksiga 100-1-modda (shaxsni tasvirga olish va tasvirdan foydalanish uchun rozilik) kiritish bo'yicha qonun ko'rib chiqilgan. Uning kuchga kirgan-kirmaganini va aniq talablarini rasmiy manbada tekshiring. Voyaga yetmaganlar tasviriga alohida ehtiyot bo'ling.</p>
+ <h3>Tezlik, jarima va dalil</h3>
+ <p>Jarimani faqat vakolatli organ belgilaydi. Dastur natijasi bilan haydovchini to'xtatish, tahdid qilish yoki pul talab qilish mumkin emas. Material faqat rasmiy organga taqdim etilsa dalil sifatida ko'rilishi mumkin, uni qabul qilish shu organning ixtiyorida. Ijtimoiy tarmoqqa joylash qonunbuzarlik hisoblanadi.</p>
+ <form method="dialog"><button>Yopish</button></form>
+</dialog>
+<dialog id="evd">
+ <h2>Dalillar</h2>
+ <p class="note">Chegaradan oshgan o'lchovning rasmi va parametrlari (SHA-256 xesh bilan). Faqat shu qurilmada saqlanadi. Tarqatmang.</p>
+ <div id="evList"></div>
+ <div class="row"><button type="button" id="evDl">Hammasini yuklab olish (.json)</button><button type="button" id="evClr" class="sec">Tozalash</button></div>
+ <form method="dialog"><button>Yopish</button></form>
+</dialog>
+<dialog id="rep">
+ <h2>Hisobot</h2>
+ <p class="note">Tezlik taqsimoti (km/soat, 10 lik oraliqlar)</p>
+ <canvas id="hist" width="600" height="200"></canvas>
+ <div id="repTxt"></div>
+ <form method="dialog"><button>Yopish</button></form>
+</dialog>
+<dialog id="auth">
+ <h2>Akkaunt</h2>
+ <div id="aForm">
+  <label>Email<input id="aMail" type="email" autocomplete="email"></label>
+  <label>Parol<input id="aPass" type="password" autocomplete="current-password"></label>
+  <button id="aIn">Kirish</button>
+  <button id="aUp" class="sec">Ro'yxatdan o'tish</button>
+  <button id="aG" class="sec">Google bilan kirish</button>
+ </div>
+ <button id="aOut" class="sec" hidden>Chiqish</button>
+ <p id="authMsg" class="note"></p>
+ <p class="note">Natijalar akkauntingiz ostida bulutda saqlanadi va boshqa qurilmada ham ko'rinadi. Davlat raqami bulutga yuborilmaydi.</p>
+ <form method="dialog"><button class="sec">Yopish</button></form>
+</dialog>
+<dialog id="tarix">
+ <h2 id="tTitle">Tarix</h2>
+ <div class="row sets">
+  <label>Dan<input id="tFrom" type="date"></label>
+  <label>Gacha<input id="tTo" type="date"></label>
+  <label class="chk"><input type="checkbox" id="tOver"> Faqat chegaradan oshganlar</label>
+ </div>
+ <p id="tCount" class="note"></p>
+ <ul id="tList"></ul>
+ <div class="row"><button id="tCsv" class="sec">CSV</button><button id="tClr" class="sec">Hammasini o'chirish</button></div>
+ <form method="dialog"><button>Yopish</button></form>
+</dialog>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js"></script>
+<script src="js/math.js"></script>
+<script src="js/app.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/account.js"></script>
+<script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");</script>
+</body>
+</html>
