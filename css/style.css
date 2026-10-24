@@ -1,0 +1,67 @@
+:root{--bg:#e8ecef;--ink:#1c2733;--mut:#5b6b7a;--card:#fff;--sign:#d6322e;--btn:#1f5fbf;--line:#cfd8e0}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 "Bahnschrift","DIN Alternate","Segoe UI",system-ui,sans-serif}
+header,main{max-width:760px;margin:0 auto;padding:0 16px}
+header{display:flex;justify-content:space-between;align-items:center;padding-top:14px}
+main{padding-bottom:28px}
+h1{font-size:1.5rem;margin:0}
+.stage{position:relative;width:100%;aspect-ratio:16/9;background:#25303b;border-radius:10px;overflow:hidden;touch-action:manipulation;margin-top:10px}
+.stage video,.stage canvas{position:absolute;inset:0;width:100%;height:100%}
+#msg{margin:.7em 0;min-height:2.9em;color:var(--mut)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:.5em 0}
+button{flex:1;min-width:140px;padding:12px;border:0;border-radius:8px;background:var(--btn);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+button.sec{background:#fff;color:var(--btn);border:1px solid var(--btn)}
+button.ghost{flex:none;min-width:0;background:none;color:var(--btn);border:1px solid var(--btn);padding:8px 14px}
+button:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #ffd23f;outline-offset:2px}
+label{flex:1;min-width:130px;font-size:.85rem;color:var(--mut)}
+input,select{display:block;width:100%;margin-top:3px;padding:9px;border:1px solid #b6c2ce;border-radius:8px;font:inherit;background:#fff;color:var(--ink)}
+.out{display:flex;gap:18px;align-items:center;margin:16px 0 8px;flex-wrap:wrap}
+.disc{width:150px;height:150px;border-radius:50%;background:var(--card);border:14px solid var(--sign);display:grid;place-content:center;text-align:center;flex:none}
+.disc.over{background:#ffd9d6}
+#num{font-size:3.4rem;font-weight:800;line-height:1}
+.disc small,#sub,.note{color:var(--mut)}
+.side{flex:1;min-width:200px}
+.stats{display:flex;gap:20px;margin:10px 0 0}
+.stats dt{font-size:.8rem;color:var(--mut)}
+.stats dd{margin:0;font-size:1.3rem;font-weight:700}
+ul{list-style:none;margin:0;padding:0}
+li{padding:8px 0;border-bottom:1px solid var(--line);font-weight:600}
+li.over{color:var(--sign)}
+li small{font-weight:400;color:var(--mut);margin-left:8px}
+.note{font-size:.8rem;margin-top:16px}
+dialog{max-width:520px;width:calc(100% - 28px);border:0;border-radius:12px;padding:20px;color:var(--ink)}
+dialog::backdrop{background:rgba(20,30,40,.6)}
+dialog h2{margin:0 0 .4em;font-size:1.25rem}
+dialog h3{margin:1em 0 .2em;font-size:1rem}
+dialog p,dialog ol{margin:.3em 0}
+dialog ol{padding-left:1.2em}
+dialog button{width:100%;margin-top:12px}
+.chk{display:flex;gap:8px;align-items:center;margin-top:12px;font-size:.9rem}
+.chk input{width:auto;margin:0}
+header{flex-wrap:wrap;gap:8px}
+.hb{display:flex;gap:6px;flex-wrap:wrap}
+dialog{background:var(--card)}
+:root[data-theme=dark]{--bg:#141b22;--ink:#e6edf3;--mut:#9aa9b7;--card:#1e2830;--line:#2c3945;--btn:#3b78d8}
+[data-theme=dark] input,[data-theme=dark] select,[data-theme=dark] button.sec{background:var(--card)}
+[data-theme=dark] button.sec,[data-theme=dark] button.ghost{color:#8db8f5;border-color:#8db8f5}
+[data-theme=dark] .disc.over{background:#5a2523}
+.sw{display:inline-block;width:12px;height:12px;border-radius:50%;border:1px solid var(--line);margin-right:6px;vertical-align:-1px}
+.plate{font-family:ui-monospace,Consolas,monospace;border:1px solid var(--mut);border-radius:4px;padding:0 5px;color:var(--ink)}
+.stage canvas{touch-action:none}
+#rep canvas{width:100%;margin-top:6px}
+#rep p{margin:.3em 0}
+[hidden]{display:none!important}
+#tList{max-height:45vh;overflow:auto}
+dialog .del{width:auto;margin:0 0 0 8px;padding:3px 10px;background:none;color:var(--sign);border:1px solid var(--sign);font-weight:400;min-width:0}
+#auth label{display:block;margin-top:8px}
+.warn{background:#fff3f2;border:2px solid var(--sign);border-radius:8px;padding:8px 12px;margin:10px 0 0;font-size:.9rem}
+[data-theme=dark] .warn{background:#3a1f1e}
+dialog{max-height:90vh;overflow:auto}
+#rules h2{color:var(--sign)}
+.ev{display:flex;gap:10px;align-items:center;margin:8px 0}
+.ev img{width:120px;border-radius:6px}
+#law h3{margin:.9em 0 .2em}
+#law p{margin:.2em 0}
+#bAcc{max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#tList li{display:flex;align-items:center;flex-wrap:wrap;gap:4px}
